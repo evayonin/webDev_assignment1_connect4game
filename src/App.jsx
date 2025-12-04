@@ -27,7 +27,7 @@ function App() {
 
     const [board, setBoard] = useState([])
     const [countMovesPlayer1, setCountMovesPlayer1] = useState(0) // for the statistics
-    const [countMpvesPlayer2, setCountMovesPlayer2] = useState(0) // for the statistics
+    const [countMovesPlayer2, setCountMovesPlayer2] = useState(0) // for the statistics
     const [size, setSize] = useState(undefined) // ניתן ליוזר לבחור גודל לוח ביחס 1:1 (יותר מסודר) בין 4-10
     const [currentPlayer, setCurrentPlayer] = useState({value:1 , color:"yellow"}) //  השחקן שממנו מתחילים (1 - צהוב)
     const [winner, setWinner] = useState(null) // נאל עד שיש ניצחון ואז ככה נוכל לעצור את המשחק
@@ -67,6 +67,13 @@ function App() {
                     ? {value: 2, color: "red"}
                     : {value: 1, color: "yellow"}
                 );
+            }
+            // הצגת הסטטיסטיקה: יוסיף לכל שחקן +1 במהלכים אחרי ששיחק (יישאר גם אחרי הריסט)
+            if(currentPlayer.value === 1) {
+                setCountMovesPlayer1(prev => prev + 1);
+            }
+            else{
+                setCountMovesPlayer2(prev => prev + 1);
             }
         }
     }
@@ -135,8 +142,19 @@ function App() {
     }
 
     const playAgainstComputer=()=>{
-        // לא צריך מהלך חכם - אז נרוץ בלולאה מקוננת והתא הראשון הפנוי שנמצא שם נשים עיגול.
-        // יישלח את זה למתודה drawplayer
+        // המחשב לא צריך לעשות מהלך חכם - סתם יעבור בלולאה וישים מעל עיגולים אחרים במקומות פנויים צמודים.
+        if(currentPlayer.value === 1) return; // המחשב תמיד יהיה עיגול אדום (שחקן 2)
+        for(let i =  0 ; i < size; i++){
+            for(let j =  0 ; j < size; j++){
+                if(board[i][j].value === null){
+                    if(i === size -1 || (i !== size - 1 && board[i+1][j].value !== null)) {
+                        // בגלל שאנחנו רצים מתחילת הלוח ממלמעלה למטה לא מספיק לבדוק רק אם הערך ריק, צריך עדיין לבדוק אם זה בתחתית או מעל עיגול אחר, אחרת מיד ייצא מהמתודה drawPlayer
+                        drawPlayer(i , j);
+                           return;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -219,6 +237,13 @@ function App() {
                     });
                 })
             }
+        </div>
+
+        <div // הצגת הסטטיסטיקה - מהלכים
+        >
+            Player 1 Moves: {countMovesPlayer1}
+            <br/>
+            Player 2 Moves: {countMovesPlayer2}
         </div>
 
         <div>
